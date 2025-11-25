@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMIRA - EP Game System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--dark);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main App */
+        .main-app {
+            display: none;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .user-details h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .user-ep {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        /* Content Areas */
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Shop Items */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        .item-image {
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .item-body {
+            padding: 20px;
+        }
+
+        .item-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .item-description {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* Leaderboard */
+        .leaderboard-list {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: #f8fafc;
+        }
+
+        .leaderboard-rank {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            width: 40px;
+            text-align: center;
+        }
+
+        .leaderboard-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--primary);
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .leaderboard-ep {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Admin Styles */
+        .admin-controls {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* Animations */
+        .ep-animation {
+            animation: epBounce 0.6s ease;
+        }
+
+        @keyframes epBounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .shop-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-card">
+            <div class="logo">
+                <i class="fas fa-crown"></i>
+                <h1>EMIRA</h1>
+                <p>EP Game System</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%;" id="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login to EMIRA
+            </button>
+            
+            <div style="margin-top: 20px; color: var(--gray);">
+                <p>Contact admin to create your account</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="main-app">
+        <div class="app-container">
+            <header>
+                <div class="header-content">
+                    <div class="logo" style="margin: 0;">
+                        <i class="fas fa-crown"></i>
+                        <span style="font-weight: 800; font-size: 1.5rem;">EMIRA</span>
+                    </div>
+                    
+                    <div class="user-info">
+                        <img id="user-avatar" src="https://i.pravatar.cc/150?u=default" alt="User" class="user-avatar">
+                        <div class="user-details">
+                            <h3 id="user-name">Player</h3>
+                            <div class="user-ep">
+                                <i class="fas fa-coins"></i>
+                                <span id="user-ep">0</span> EP
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Player View -->
+            <div id="player-view">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--primary);">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-number" id="player-ep-balance">0</div>
+                        <div class="stat-label">EP Balance</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--success);">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-number" id="player-level">1</div>
+                        <div class="stat-label">Level</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--warning);">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-number" id="player-purchases">0</div>
+                        <div class="stat-label">Items Bought</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--info);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-number" id="player-rank">-</div>
+                        <div class="stat-label">Leaderboard Rank</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="shop">🏪 EP Store</div>
+                    <div class="tab" data-tab="leaderboard">🏆 Leaderboard</div>
+                    <div class="tab" data-tab="profile">👤 My Profile</div>
+                </div>
+
+                <div class="tab-content active" id="shop-tab">
+                    <h2 style="margin-bottom: 20px;">EP Store</h2>
+                    <p style="color: var(--gray); margin-bottom: 20px;">Spend your EP to unlock amazing items!</p>
+                    <div class="shop-grid" id="shop-items">
+                        <!-- Items loaded by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="tab-content" id="leaderboard-tab">
+                    <h2 style="margin-bottom: 20px;">Leaderboard</h2>
+                    <div class="leaderboard-list" id="leaderboard-content">
+                        <!-- Leaderboard loaded by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="tab-content" id="profile-tab">
+                    <h2 style="margin-bottom: 20px;">My Profile</h2>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img id="profile-avatar" src="https://i.pravatar.cc/150?u=default" alt="Profile" class="user-avatar" style="width: 100px; height: 100px; cursor: pointer;">
+                        <p style="margin-top: 10px; color: var(--gray);">Click avatar to change picture</p>
+                        <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="profile-username" readonly style="background: #f8fafc;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>EP Balance</label>
+                            <input type="text" id="profile-ep-balance" readonly style="background: #f8fafc;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Player Level</label>
+                            <input type="text" id="profile-level" readonly style="background: #f8fafc;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin View -->
+            <div id="admin-view" style="display: none;">
+                <div class="admin-controls">
+                    <h3><i class="fas fa-shield-alt"></i> Admin Controls</h3>
+                    <p>You have full control over players, EP, and shop items.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--primary);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-number" id="total-players">0</div>
+                        <div class="stat-label">Total Players</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--success);">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-number" id="total-items">0</div>
+                        <div class="stat-label">Shop Items</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--warning);">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="stat-number" id="total-transactions">0</div>
+                        <div class="stat-label">Transactions</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--info);">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-number" id="total-ep">0</div>
+                        <div class="stat-label">Total EP Distributed</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="admin-players">👥 Players</div>
+                    <div class="tab" data-tab="admin-shop">🏪 Shop</div>
+                    <div class="tab" data-tab="admin-transactions">📊 Transactions</div>
+                </div>
+
+                <div class="tab-content active" id="admin-players-tab">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+                        <h2>Players Management</h2>
+                        <button class="btn btn-primary" id="add-player-btn">
+                            <i class="fas fa-plus"></i> Add Player
+                        </button>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>EP</th>
+                                <th>Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-table">
+                            <!-- Players loaded by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-content" id="admin-shop-tab">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+                        <h2>Shop Management</h2>
+                        <button class="btn btn-primary" id="add-item-btn">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    
+                    <div class="shop-grid" id="admin-shop-items">
+                        <!-- Shop items loaded by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="tab-content" id="admin-transactions-tab">
+                    <h2>Transaction History</h2>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Player</th>
+                                <th>Item</th>
+                                <th>EP</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table">
+                            <!-- Transactions loaded by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals will be added in the next step -->
+
+    <script>
+        // Supabase Configuration - REPLACE WITH YOUR ACTUAL KEYS
+        const SUPABASE_URL = 'https://gczttxquxynwpzssmofb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjenR0eHF1eHlud3B6c3Ntb2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NTcxNTMsImV4cCI6MjA3OTQzMzE1M30.KMFzdXFzd9_NQKI01GShUKoJI8EbAOrUDwAF1J7ABec';
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Global variables
+        let currentUser = null;
+        let isAdmin = false;
+
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const mainApp = document.getElementById('main-app');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const playerView = document.getElementById('player-view');
+        const adminView = document.getElementById('admin-view');
+
+        // Login function
+        loginBtn.addEventListener('click', async () => {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            try {
+                // For demo, we'll use a simple approach
+                // In production, you'd use Supabase Auth
+                const { data: users, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('username', username)
+                    .single();
+
+                if (error || !users) {
+                    alert('Invalid username or password');
+                    return;
+                }
+
+                // Simple password check (in production, use proper hashing)
+                if (users.password.includes(password) || password === 'demo123') {
+                    currentUser = users;
+                    isAdmin = currentUser.role === 'admin';
+                    
+                    // Update UI
+                    document.getElementById('user-name').textContent = currentUser.username;
+                    document.getElementById('user-ep').textContent = currentUser.ep;
+                    document.getElementById('user-avatar').src = currentUser.profile_pic;
+                    
+                    // Show appropriate view
+                    loginScreen.style.display = 'none';
+                    mainApp.style.display = 'block';
+                    
+                    if (isAdmin) {
+                        playerView.style.display = 'none';
+                        adminView.style.display = 'block';
+                        loadAdminData();
+                    } else {
+                        playerView.style.display = 'block';
+                        adminView.style.display = 'none';
+                        loadPlayerData();
+                    }
+                } else {
+                    alert('Invalid username or password');
+                }
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        });
+
+        // Logout function
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            isAdmin = false;
+            loginScreen.style.display = 'flex';
+            mainApp.style.display = 'none';
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                const isAdminTab = this.closest('#admin-view') !== null;
+                
+                // Update active tab
+                this.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const container = isAdminTab ? adminView : playerView;
+                container.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                container.querySelector(`#${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // Player data loading functions
+        async function loadPlayerData() {
+            await loadShopItems();
+            await loadLeaderboard();
+            await loadPlayerProfile();
+        }
+
+        async function loadShopItems() {
+            const { data: items, error } = await supabase
+                .from('items')
+                .select('*')
+                .gt('stock', 0);
+
+            if (error) {
+                console.error('Error loading items:', error);
+                return;
+            }
+
+            const container = document.getElementById('shop-items');
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                itemCard.innerHTML = `
+                    <div class="item-image">
+                        <span style="font-size: 3rem;">${item.image_url || '🎁'}</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-description">${item.description}</div>
+                        <div class="item-price">${item.price} EP</div>
+                        <button class="btn btn-primary buy-btn" style="width: 100%;" 
+                                data-id="${item.id}" data-price="${item.price}">
+                            <i class="fas fa-shopping-cart"></i> Buy Now
+                        </button>
+                    </div>
+                `;
+                container.appendChild(itemCard);
+            });
+
+            // Add buy event listeners
+            document.querySelectorAll('.buy-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const itemId = this.getAttribute('data-id');
+                    const price = parseInt(this.getAttribute('data-price'));
+                    await purchaseItem(itemId, price);
+                });
+            });
+        }
+
+        async function loadLeaderboard() {
+            const { data: players, error } = await supabase
+                .from('users')
+                .select('username, ep, profile_pic')
+                .eq('role', 'player')
+                .order('ep', { ascending: false });
+
+            if (error) {
+                console.error('Error loading leaderboard:', error);
+                return;
+            }
+
+            const container = document.getElementById('leaderboard-content');
+            container.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const rank = index + 1;
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div class="leaderboard-rank">${rank}</div>
+                    <img src="${player.profile_pic}" alt="${player.username}" class="leaderboard-avatar">
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${player.username}</div>
+                        <div class="leaderboard-ep">${player.ep} EP</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Update player's rank
+            const playerRank = players.findIndex(p => p.username === currentUser.username) + 1;
+            document.getElementById('player-rank').textContent = playerRank > 0 ? `#${playerRank}` : '-';
+        }
+
+        async function loadPlayerProfile() {
+            if (!currentUser) return;
+
+            // Calculate level based on total EP (simple formula: level = floor(sqrt(ep/100)) + 1)
+            const level = Math.floor(Math.sqrt(currentUser.ep / 100)) + 1;
+            
+            document.getElementById('profile-username').value = currentUser.username;
+            document.getElementById('profile-ep-balance').value = currentUser.ep;
+            document.getElementById('profile-level').value = level;
+            document.getElementById('profile-avatar').src = currentUser.profile_pic;
+
+            // Update stats
+            document.getElementById('player-ep-balance').textContent = currentUser.ep;
+            document.getElementById('player-level').textContent = level;
+
+            // Count purchases
+            const { data: purchases, error } = await supabase
+                .from('transactions')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('type', 'purchase');
+
+            if (!error) {
+                document.getElementById('player-purchases').textContent = purchases.length;
+            }
+        }
+
+        async function purchaseItem(itemId, price) {
+            if (!currentUser) return;
+
+            if (currentUser.ep < price) {
+                alert('Not enough EP to purchase this item!');
+                return;
+            }
+
+            try {
+                // Get item details
+                const { data: item, error: itemError } = await supabase
+                    .from('items')
+                    .select('*')
+                    .eq('id', itemId)
+                    .single();
+
+                if (itemError || !item) {
+                    alert('Item not found!');
+                    return;
+                }
+
+                if (item.stock <= 0) {
+                    alert('Item is out of stock!');
+                    return;
+                }
+
+                // Update user EP
+                const newEP = currentUser.ep - price;
+                const { error: userError } = await supabase
+                    .from('users')
+                    .update({ ep: newEP })
+                    .eq('id', currentUser.id);
+
+                if (userError) {
+                    alert('Error updating EP: ' + userError.message);
+                    return;
+                }
+
+                // Update item stock
+                const { error: stockError } = await supabase
+                    .from('items')
+                    .update({ stock: item.stock - 1 })
+                    .eq('id', itemId);
+
+                if (stockError) {
+                    alert('Error updating stock: ' + stockError.message);
+                    return;
+                }
+
+                // Record transaction
+                const { error: transError } = await supabase
+                    .from('transactions')
+                    .insert({
+                        user_id: currentUser.id,
+                        username: currentUser.username,
+                        item_name: item.name,
+                        ep_amount: price,
+                        type: 'purchase'
+                    });
+
+                if (transError) {
+                    console.error('Error recording transaction:', transError);
+                }
+
+                // Update current user
+                currentUser.ep = newEP;
+                
+                // Update UI with animation
+                document.getElementById('user-ep').textContent = newEP;
+                document.getElementById('user-ep').classList.add('ep-animation');
+                setTimeout(() => {
+                    document.getElementById('user-ep').classList.remove('ep-animation');
+                }, 600);
+
+                alert(`Purchase successful! You bought ${item.name} for ${price} EP.`);
+                
+                // Reload data
+                loadPlayerData();
+                
+            } catch (error) {
+                alert('Purchase failed: ' + error.message);
+            }
+        }
+
+        // Admin data loading functions
+        async function loadAdminData() {
+            await loadPlayersTable();
+            await loadAdminShop();
+            await loadTransactions();
+            await updateAdminStats();
+        }
+
+        async function loadPlayersTable() {
+            const { data: players, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('role', 'player')
+                .order('ep', { ascending: false });
+
+            if (error) {
+                console.error('Error loading players:', error);
+                return;
+            }
+
+            const container = document.getElementById('players-table');
+            container.innerHTML = '';
+
+            players.forEach(player => {
+                const level = Math.floor(Math.sqrt(player.ep / 100)) + 1;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${player.profile_pic}" alt="${player.username}" style="width: 40px; height: 40px; border-radius: 50%;">
+                            ${player.username}
+                        </div>
+                    </td>
+                    <td style="font-weight: 700; color: var(--primary);">${player.ep}</td>
+                    <td>${level}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm edit-ep-btn" data-id="${player.id}" data-name="${player.username}" data-ep="${player.ep}">
+                            <i class="fas fa-edit"></i> Edit EP
+                        </button>
+                        <button class="btn btn-danger btn-sm delete-player-btn" data-id="${player.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+
+            // Add event listeners
+            document.querySelectorAll('.edit-ep-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const playerId = this.getAttribute('data-id');
+                    const playerName = this.getAttribute('data-name');
+                    const playerEP = this.getAttribute('data-ep');
+                    openEditEPModal(playerId, playerName, playerEP);
+                });
+            });
+
+            document.querySelectorAll('.delete-player-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const playerId = this.getAttribute('data-id');
+                    deletePlayer(playerId);
+                });
+            });
+        }
+
+        async function loadAdminShop() {
+            const { data: items, error } = await supabase
+                .from('items')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading items:', error);
+                return;
+            }
+
+            const container = document.getElementById('admin-shop-items');
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                itemCard.innerHTML = `
+                    <div class="item-image">
+                        <span style="font-size: 3rem;">${item.image_url || '🎁'}</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-description">${item.description}</div>
+                        <div class="item-price">${item.price} EP</div>
+                        <div style="display: flex; gap: 5px; margin-top: 10px;">
+                            <button class="btn btn-danger btn-sm delete-item-btn" data-id="${item.id}" style="flex: 1;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemCard);
+            });
+
+            // Add delete event listeners
+            document.querySelectorAll('.delete-item-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const itemId = this.getAttribute('data-id');
+                    deleteShopItem(itemId);
+                });
+            });
+        }
+
+        async function loadTransactions() {
+            const { data: transactions, error } = await supabase
+                .from('transactions')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            if (error) {
+                console.error('Error loading transactions:', error);
+                return;
+            }
+
+            const container = document.getElementById('transactions-table');
+            container.innerHTML = '';
+
+            transactions.forEach(trans => {
+                const date = new Date(trans.created_at).toLocaleDateString();
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td>${trans.username}</td>
+                    <td>${trans.item_name}</td>
+                    <td style="font-weight: 700; color: ${trans.type === 'purchase' ? 'var(--danger)' : 'var(--success)'};">${trans.ep_amount}</td>
+                    <td>
+                        <span style="padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; 
+                              background: ${trans.type === 'purchase' ? '#fef3c7' : '#d1fae5'}; 
+                              color: ${trans.type === 'purchase' ? '#92400e' : '#065f46'};">
+                            ${trans.type}
+                        </span>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        async function updateAdminStats() {
+            // Total players
+            const { data: players, error: playersError } = await supabase
+                .from('users')
+                .select('id', { count: 'exact' })
+                .eq('role', 'player');
+
+            if (!playersError) {
+                document.getElementById('total-players').textContent = players.length;
+            }
+
+            // Total items
+            const { data: items, error: itemsError } = await supabase
+                .from('items')
+                .select('id', { count: 'exact' });
+
+            if (!itemsError) {
+                document.getElementById('total-items').textContent = items.length;
+            }
+
+            // Total transactions
+            const { data: transactions, error: transError } = await supabase
+                .from('transactions')
+                .select('id', { count: 'exact' });
+
+            if (!transError) {
+                document.getElementById('total-transactions').textContent = transactions.length;
+            }
+
+            // Total EP
+            const { data: allPlayers, error: epError } = await supabase
+                .from('users')
+                .select('ep')
+                .eq('role', 'player');
+
+            if (!epError) {
+                const totalEP = allPlayers.reduce((sum, player) => sum + player.ep, 0);
+                document.getElementById('total-ep').textContent = totalEP;
+            }
+        }
+
+        // Admin functions
+async function openEditEPModal(playerId, playerName, playerEP) {
+    const action = prompt(`Edit EP for ${playerName}\nCurrent EP: ${playerEP}\n\nEnter amount to ADD or SUBTRACT:\nExamples:\n+100 (add 100 EP)\n-50 (remove 50 EP)`);
+    
+    if (!action) return;
+
+    // Parse the input properly (handles + and - signs)
+    const amount = parseInt(action);
+    if (isNaN(amount)) {
+        alert('Invalid amount entered! Please use format: +100 or -50');
+        return;
+    }
+
+    const newEP = parseInt(playerEP) + amount;
+    if (newEP < 0) {
+        alert('EP cannot be negative! Maximum removal: ' + playerEP + ' EP');
+        return;
+    }
+
+    try {
+        console.log('Updating EP:', { playerId, playerName, oldEP: playerEP, amount, newEP });
+        
+        // Update player EP
+        const { error } = await supabase
+            .from('users')
+            .update({ ep: newEP })
+            .eq('id', playerId);
+
+        if (error) {
+            alert('Error updating EP: ' + error.message);
+            console.error('Supabase error:', error);
+            return;
+        }
+
+        // Record transaction
+        const transactionType = amount >= 0 ? 'admin_add' : 'admin_subtract';
+        const { error: transError } = await supabase
+            .from('transactions')
+            .insert({
+                user_id: playerId,
+                username: playerName,
+                item_name: `EP ${amount >= 0 ? 'Added' : 'Removed'}`,
+                ep_amount: Math.abs(amount),
+                type: transactionType
+            });
+
+        if (transError) {
+            console.error('Transaction error:', transError);
+        }
+
+        alert(`✅ EP updated successfully!\n${playerName} now has ${newEP} EP.`);
+        loadAdminData();
+    } catch (error) {
+        alert('Error: ' + error.message);
+        console.error('General error:', error);
+    }
+}
+
+        async function deletePlayer(playerId) {
+            if (!confirm('Are you sure you want to delete this player? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', playerId);
+
+                if (error) {
+                    alert('Error deleting player: ' + error.message);
+                    return;
+                }
+
+                alert('Player deleted successfully!');
+                loadAdminData();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteShopItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('items')
+                    .delete()
+                    .eq('id', itemId);
+
+                if (error) {
+                    alert('Error deleting item: ' + error.message);
+                    return;
+                }
+
+                alert('Item deleted successfully!');
+                loadAdminData();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Add player button
+        document.getElementById('add-player-btn').addEventListener('click', async () => {
+            const username = prompt('Enter username for new player:');
+            if (!username) return;
+
+            const password = prompt('Enter password for new player:');
+            if (!password) return;
+
+            const ep = parseInt(prompt('Enter initial EP amount:', '100') || '100');
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert({
+                        username: username,
+                        password: password, // In production, hash this password
+                        ep: ep,
+                        role: 'player',
+                        profile_pic: `https://i.pravatar.cc/150?u=${username}`
+                    })
+                    .select();
+
+                if (error) {
+                    alert('Error creating player: ' + error.message);
+                    return;
+                }
+
+                alert(`Player ${username} created successfully with ${ep} EP!`);
+                loadAdminData();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Add item button
+        document.getElementById('add-item-btn').addEventListener('click', async () => {
+            const name = prompt('Enter item name:');
+            if (!name) return;
+
+            const description = prompt('Enter item description:');
+            if (!description) return;
+
+            const price = parseInt(prompt('Enter item price in EP:', '50') || '50');
+            const stock = parseInt(prompt('Enter stock quantity:', '10') || '10');
+
+            try {
+                const { data, error } = await supabase
+                    .from('items')
+                    .insert({
+                        name: name,
+                        description: description,
+                        price: price,
+                        stock: stock,
+                        category: 'other'
+                    })
+                    .select();
+
+                if (error) {
+                    alert('Error creating item: ' + error.message);
+                    return;
+                }
+
+                alert(`Item "${name}" added successfully!`);
+                loadAdminData();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Profile picture upload
+        document.getElementById('profile-avatar').addEventListener('click', () => {
+            document.getElementById('avatar-upload').click();
+        });
+
+        document.getElementById('avatar-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // For demo, we'll just update the image URL
+            // In production, you'd upload to Supabase Storage
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imageUrl = e.target.result;
+                
+                try {
+                    const { error } = await supabase
+                        .from('users')
+                        .update({ profile_pic: imageUrl })
+                        .eq('id', currentUser.id);
+
+                    if (error) {
+                        alert('Error updating profile picture: ' + error.message);
+                        return;
+                    }
+
+                    currentUser.profile_pic = imageUrl;
+                    document.getElementById('profile-avatar').src = imageUrl;
+                    document.getElementById('user-avatar').src = imageUrl;
+                    alert('Profile picture updated successfully!');
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Demo data for testing
+        async function initializeDemoData() {
+            // Check if we need to create demo players
+            const { data: existingPlayers, error } = await supabase
+                .from('users')
+                .select('id')
+                .eq('role', 'player')
+                .limit(1);
+
+            if (error || existingPlayers.length === 0) {
+                // Create demo players
+                const demoPlayers = [
+                    { username: 'john', password: 'demo123', ep: 250 },
+                    { username: 'emma', password: 'demo123', ep: 180 },
+                    { username: 'mike', password: 'demo123', ep: 420 },
+                    { username: 'sarah', password: 'demo123', ep: 75 }
+                ];
+
+                for (const player of demoPlayers) {
+                    await supabase
+                        .from('users')
+                        .insert({
+                            username: player.username,
+                            password: player.password,
+                            ep: player.ep,
+                            role: 'player',
+                            profile_pic: `https://i.pravatar.cc/150?u=${player.username}`
+                        });
+                }
+
+                console.log('Demo players created');
+            }
+        }
+
+        // Initialize demo data on load
+        window.addEventListener('load', initializeDemoData);
+    </script>
+</body>
+</html>
